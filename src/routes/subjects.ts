@@ -9,29 +9,32 @@ const router = express.Router();
 router.get("/", async (req, res) => {
     try {
         const { search, department, page = 1, limit = 10 } = req.query;
-        const currentPage = Math.max(1, +page);
-        const limitPerPage = Math.max(1, +limit);
 
+        const sanitizedSearch = typeof search === "string" ? search.trim().slice(0, 100) : undefined;
+        const sanitizedDepartment = typeof department === "string" ? department.trim().slice(0, 100) : undefined;
+
+        const currentPage = Math.max(1, Number(page) || 1);
+        const limitPerPage = Math.max(1, Number(limit) || 10);
         const offset = (currentPage - 1) * limitPerPage;
 
-        const filterCondionts = [];
+        const filterConditions = [];
         // IF search exists, filter by subject name or code
-        if (search) {
-            filterCondionts.push(
+        if (sanitizedSearch) {
+            filterConditions.push(
                 or(
-                    ilike(subjects.name, `%${search}%`),
-                    ilike(subjects.code, `%${search}%`)
+                    ilike(subjects.name, `%${sanitizedSearch}%`),
+                    ilike(subjects.code, `%${sanitizedSearch}%`)
                 )
             );
         }
         // IF department exists, filter by department
-        if (department) {
-            filterCondionts.push(
+        if (sanitizedDepartment) {
+            filterConditions.push(
                 ilike(departments.name, `%${department}%`)
             );
         }
         // Combine all filter conditions
-        const whereClause = filterCondionts.length > 0 ? and(...filterCondionts) : undefined;
+        const whereClause = filterConditions.length > 0 ? and(...filterConditions) : undefined;
 
         const countResult = await db.
             select({ count: sql<number>`count(*)` })
@@ -40,7 +43,7 @@ router.get("/", async (req, res) => {
             .where(whereClause);
 
 
-        const totalCount = countResult[0]?.count ?? 0;
+        const totalCount = Number(countResult[0]?.count ?? 0);
 
         const subjectsList = await db
             .select({
