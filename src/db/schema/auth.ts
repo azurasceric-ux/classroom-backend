@@ -10,7 +10,7 @@ export const roleEnum = pgEnum('role', ['admin', 'teacher', 'student']);
 export const users = pgTable('users', {
     id: text('id').primaryKey(),
     name: text('name').notNull(),
-    email: text('email').notNull(),
+    email: text('email').notNull().unique(),
     emailVerified: boolean('email_verified').default(false).notNull(),
     role: roleEnum('role').default('student').notNull(),
     ...timestamps,
@@ -28,8 +28,8 @@ export const sessions = pgTable('sessions', {
 
 export const account = pgTable('account', {
     id: text('id').primaryKey(),
-    accountId: text('account_id').notNull(),
-    providerId: text('provider_id').notNull(),
+    accountId: text('account_id').notNull().unique(),
+    providerId: text('provider_id').notNull().unique(),
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
