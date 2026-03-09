@@ -15,6 +15,20 @@
       "when": 1772751887141,
       "tag": "0001_cool_mulholland_black",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772752890956,
+      "tag": "0002_robust_darkhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773071224667,
+      "tag": "0003_white_red_hulk",
+      "breakpoints": true
     }
   ]
 }
