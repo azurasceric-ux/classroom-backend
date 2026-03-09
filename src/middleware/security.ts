@@ -3,6 +3,9 @@ import aj from "../config/arcjet";
 import { ArcjetNodeRequest, ArcjetRequest, slidingWindow } from "@arcjet/node";
 const securityMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     if (process.env.NODE_ENV === "test") return next();
+    if (!aj) {
+        return res.status(500).json({ error: "Internal server error.", message: "ArcJet client is not configured." });
+    }
     try {
         const role: RateLimitRole = req.user?.role ?? "guest";
         let limit: number;
@@ -29,7 +32,7 @@ const securityMiddleware = async (req: Request, res: Response, next: NextFunctio
         const client = aj.withRule(
             slidingWindow({
                 mode: "LIVE",
-                interval: "60",
+                interval: "60s",
                 max: limit,
             })
         );
@@ -38,7 +41,7 @@ const securityMiddleware = async (req: Request, res: Response, next: NextFunctio
             headers: req.headers,
             method: req.method,
             url: req.originalUrl ?? req.url,
-            socket: { remoteAddress: req.socket.remoteAddress ?? req.ip ?? "0.0.0.0" }
+            socket: { remoteAddress: req.ip ?? req.socket.remoteAddress ?? "0.0.0.0" }
         }
 
         const decision = await client.protect(arcjetRequest);
@@ -52,7 +55,7 @@ const securityMiddleware = async (req: Request, res: Response, next: NextFunctio
         }
 
         if (decision.isDenied() && decision.reason.isRateLimit()) {
-            return res.status(403).json({ error: "Too many requests.", message });
+            return res.status(429).json({ error: "Too many requests.", message });
         }
 
         next();

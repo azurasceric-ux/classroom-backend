@@ -28,8 +28,8 @@ export const sessions = pgTable('sessions', {
 
 export const account = pgTable('account', {
     id: text('id').primaryKey(),
-    accountId: text('account_id').notNull().unique(),
-    providerId: text('provider_id').notNull().unique(),
+    accountId: text('account_id').notNull(),
+    providerId: text('provider_id').notNull(),
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
     accessToken: text('access_token'),
     refreshToken: text('refresh_token'),
