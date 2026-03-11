@@ -33,8 +33,6 @@ export const classes = pgTable("classes", {
     teacherId: text('teacher_id').notNull().references(() => users.id, { onDelete: 'restrict' }),
     inviteCode: varchar('invite_code', { length: 20 }).notNull().unique(),
     name: varchar('name', { length: 255 }).notNull(),
-    bannerCldPubId: text('banner_cld_pub_id'),
-    bannerUrl: text('banner_url'),
     description: text('description'),
     capacity: integer('capacity').notNull().default(50),
     status: classStatusEnum('status').notNull().default('active'),
