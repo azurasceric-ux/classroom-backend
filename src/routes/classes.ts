@@ -38,22 +38,22 @@ router.get('/', async (req, res) => {
 
         const offset = (currentPage - 1) * currentLimit;
 
+        const escapeLikePattern = (value: string) => value.replace(/[%_]/g, (char) => `\\${char}`);
+
         const filterConditions = [];
         if (sanitizedSearch) {
             filterConditions.push(
-                or(
-                    ilike(classes.name, `%${sanitizedSearch}%`)
-                )
+                ilike(classes.name, `%${escapeLikePattern(sanitizedSearch)}%`)
             );
         }
         if (sanitizedSubject) {
             filterConditions.push(
-                ilike(subjects.name, `%${sanitizedSubject}%`)
+                ilike(subjects.name, `%${escapeLikePattern(sanitizedSubject)}%`)
             );
         }
         if (sanitizedTeacher) {
             filterConditions.push(
-                ilike(users.name, `%${sanitizedTeacher}%`)
+                ilike(users.name, `%${escapeLikePattern(sanitizedTeacher)}%`)
             );
         }
 
@@ -72,7 +72,10 @@ router.get('/', async (req, res) => {
             .select({
                 ...getTableColumns(classes),
                 subject: { ...getTableColumns(subjects) },
-                teacher: { ...getTableColumns(users) }
+                teacher: {
+                    id: users.id,
+                    name: users.name
+                }
             })
             .from(classes)
             .leftJoin(subjects, eq(classes.subjectId, subjects.id))
