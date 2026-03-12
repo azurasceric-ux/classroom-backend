@@ -1,6 +1,6 @@
 import express from "express";
 import { db } from "../db";
-import { classes, subjects, users } from "../db/schema";
+import { classes, departments, subjects, users } from "../db/schema";
 import { and, eq, getTableColumns, ilike, or, sql, desc } from "drizzle-orm";
 
 const router = express.Router();
@@ -100,4 +100,38 @@ router.get('/', async (req, res) => {
     }
 })
 
+router.get('/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid class ID" });
+        }
+        const classData = await db
+            .select({
+                ...getTableColumns(classes),
+                subject: { ...getTableColumns(subjects) },
+                department: { ...getTableColumns(departments) },
+                teacher: {
+                    id: users.id,
+                    name: users.name,
+                    email: users.email
+                }
+            })
+            .from(classes)
+            .leftJoin(subjects, eq(classes.subjectId, subjects.id))
+            .leftJoin(users, eq(classes.teacherId, users.id))
+            .leftJoin(departments, eq(subjects.departmentId, departments.id))
+            .where(eq(classes.id, id));
+
+        if (classData.length === 0) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+        return res.status(200).json({
+            data: classData[0]
+        });
+    } catch (error) {
+        console.log("GET /classes/:id error", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
 export default router;
