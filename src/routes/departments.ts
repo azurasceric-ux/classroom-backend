@@ -6,8 +6,8 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
     try {
-        const result = await db.select({ name: departments.name }).from(departments);
-        return res.json(result);
+        const result = await db.select().from(departments);
+        return res.json({ data: result, totalCount: result.length });
     } catch (error) {
         console.error("Error fetching departments:", error);
         return res.status(500).json({ error: "Internal server error" });
