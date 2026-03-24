@@ -12,7 +12,7 @@ const app = express();
 const PORT = 8000;
 app.use(cors({
   origin: process.env.FRONTEND_URL,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true,
 }));
 
@@ -27,10 +27,6 @@ app.use('/api/departments', departmentsRouter);
 app.use('/api/users', usersRouter);
 
 app.use('/api/classes', classesRouter);
-
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

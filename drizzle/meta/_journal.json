@@ -29,6 +29,13 @@
       "when": 1773071224667,
       "tag": "0003_white_red_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773334773300,
+      "tag": "0004_classy_pandemic",
+      "breakpoints": true
     }
   ]
 }
