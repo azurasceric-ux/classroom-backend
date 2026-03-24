@@ -134,4 +134,78 @@ router.get('/:id', async (req, res) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 })
+
+router.delete('/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid class ID" });
+        }
+        const classData = await db
+            .delete(classes)
+            .where(eq(classes.id, id))
+            .returning({ id: classes.id });
+
+        if (classData.length === 0) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+        return res.status(200).json({
+            data: classData[0]
+        });
+    } catch (error) {
+        console.log("DELETE /classes/:id error", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
+
+router.patch('/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid class ID" });
+        }
+        if (!Object.keys(req.body).length) {
+            return res.status(400).json({ message: "No fields provided to update" });
+        }
+        const classData = await db
+            .update(classes)
+            .set(req.body)
+            .where(eq(classes.id, id))
+            .returning({ id: classes.id });
+
+        if (classData.length === 0) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+        return res.status(200).json({
+            data: classData[0]
+        });
+    } catch (error) {
+        console.log("PATCH /classes/:id error", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
+
+router.put('/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid class ID" });
+        }
+        const classData = await db
+            .update(classes)
+            .set(req.body)
+            .where(eq(classes.id, id))
+            .returning({ id: classes.id });
+
+        if (classData.length === 0) {
+            return res.status(404).json({ message: "Class not found" });
+        }
+        return res.status(200).json({
+            data: classData[0]
+        });
+    } catch (error) {
+        console.log("PUT /classes/edit/:id error", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
 export default router;
