@@ -72,9 +72,38 @@ router.get("/", async (req, res) => {
     }
 });
 
+router.get("/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid subject ID" });
+        }
+
+        const subjectResult = await db.
+            select({
+                ...getTableColumns(subjects),
+                department: { ...getTableColumns(departments) }
+            })
+            .from(subjects)
+            .leftJoin(departments, eq(subjects.departmentId, departments.id))
+            .where(eq(subjects.id, id));
+
+        if (!subjectResult) {
+            return res.status(404).json({ message: "Subject not found" });
+        }
+
+        res.status(200).json({
+            data: subjectResult[0],
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch subjects" });
+    }
+});
+
 router.post("/", async (req, res) => {
     try {
-        const [createdSubject] = await db
+        const createdSubject = await db
             .insert(subjects)
             .values({
                 ...req.body
@@ -88,6 +117,81 @@ router.post("/", async (req, res) => {
         return res.status(201).json({ data: createdSubject });
     } catch (error) {
         console.log("POST /subjects error", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+router.delete("/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid subject ID" });
+        }
+
+        const deletedSubject = await db
+            .delete(subjects)
+            .where(eq(subjects.id, id))
+            .returning({ id: subjects.id });
+
+        if (!deletedSubject) {
+            return res.status(404).json({ message: "Subject not found" });
+        }
+
+        return res.status(200).json({ data: deletedSubject[0] });
+    } catch (error) {
+        console.log("DELETE /subjects error", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+router.put("/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid subject ID" });
+        }
+
+        const updatedSubject = await db
+            .update(subjects)
+            .set({
+                ...req.body
+            })
+            .where(eq(subjects.id, id))
+            .returning({ id: subjects.id });
+
+        if (!updatedSubject) {
+            return res.status(404).json({ message: "Subject not found" });
+        }
+
+        return res.status(200).json({ data: updatedSubject[0] });
+    } catch (error) {
+        console.log("PUT /subjects error", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+router.patch("/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid subject ID" });
+        }
+
+        const updatedSubject = await db
+            .update(subjects)
+            .set({
+                ...req.body
+            })
+            .where(eq(subjects.id, id))
+            .returning({ id: subjects.id });
+
+        if (!updatedSubject) {
+            return res.status(404).json({ message: "Subject not found" });
+        }
+
+        return res.status(200).json({ data: updatedSubject[0] });
+    } catch (error) {
+        console.log("PUT /subjects error", error);
         return res.status(500).json({ message: "Internal server error" });
     }
 });
