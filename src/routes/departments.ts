@@ -15,6 +15,29 @@ router.get("/", async (req, res) => {
     }
 })
 
+router.get("/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) {
+            return res.status(400).json({ message: "Invalid department ID" });
+        }
+
+        const [department] = await db
+            .select()
+            .from(departments)
+            .where(eq(departments.id, id));
+
+        if (!department) {
+            return res.status(404).json({ message: "Department not found" });
+        }
+
+        return res.status(200).json({ data: department });
+    } catch (error) {
+        console.log("GET /departments/:id error", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+})
+
 router.post("/", async (req, res) => {
     try {
         const [createdDepartment] = await db
