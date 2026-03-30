@@ -13,19 +13,19 @@ const securityMiddleware = async (req: Request, res: Response, next: NextFunctio
         let message: string;
         switch (role) {
             case "admin":
-                limit = 20;
+                limit = 25;
                 message = "Admin rate limit exceeded.";
                 break;
             case "teacher":
-                limit = 10;
+                limit = 25;
                 message = "Teacher rate limit exceeded.";
                 break;
             case "student":
-                limit = 10;
+                limit = 25;
                 message = "Student rate limit exceeded.";
                 break;
             default:
-                limit = 5;
+                limit = 15;
                 message = "Guest rate limit exceeded.";
                 break;
         }
